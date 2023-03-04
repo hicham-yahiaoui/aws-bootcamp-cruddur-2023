@@ -1,6 +1,8 @@
 import './HomeFeedPage.css';
 import React from "react";
 
+import { Auth } from 'aws-amplify';
+
 import DesktopNavigation  from '../components/DesktopNavigation';
 import DesktopSidebar     from '../components/DesktopSidebar';
 import ActivityFeed from '../components/ActivityFeed';
@@ -35,7 +37,8 @@ export default function HomeFeedPage() {
     }
   };
 
-  const checkAuth = async () => {
+  //Old code using cookies
+  /*const checkAuth = async () => {
     console.log('checkAuth')
     // [TODO] Authenication
     if (Cookies.get('user.logged_in')) {
@@ -44,7 +47,27 @@ export default function HomeFeedPage() {
         handle: Cookies.get('user.username')
       })
     }
-  };
+  };*/
+
+// check if we are authenicated
+const checkAuth = async () => {
+  Auth.currentAuthenticatedUser({
+    // Optional, By default is false. 
+    // If set to true, this call will send a 
+    // request to Cognito to get the latest user data
+    bypassCache: false 
+  })
+  .then((user) => {
+    console.log('user',user);
+    return Auth.currentAuthenticatedUser()
+  }).then((cognito_user) => {
+      setUser({
+        display_name: cognito_user.attributes.name,
+        handle: cognito_user.attributes.preferred_username
+      })
+  })
+  .catch((err) => console.log(err));
+};
 
   React.useEffect(()=>{
     //prevents double call
