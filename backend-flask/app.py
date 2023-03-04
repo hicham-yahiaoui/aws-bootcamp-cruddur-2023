@@ -101,6 +101,19 @@ def init_rollbar():
     # send exceptions from `app` to rollbar, using flask's signal system.
     got_request_exception.connect(rollbar.contrib.flask.report_exception, app)
 
+# Add people tracking
+# This works when an error occurs but not when reporting a message with rollbar.report_message
+from flask import Request
+class CustomRequest(Request):
+    @property
+    def rollbar_person(self):
+        # 'id' is required, 'username' and 'email' are indexed but optional.
+        # all values are strings.
+        # TODO -  This can be changed once we use authentification to get the real data
+        return {'id': '1', 'username': 'hyahiaoui', 'email': 'test@example.com'}
+
+app.request_class = CustomRequest
+
 # Endpoint to test rollbar
 @app.route('/rollbar/test')
 def rollbar_test():
