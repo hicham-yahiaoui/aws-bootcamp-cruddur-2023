@@ -22,7 +22,8 @@ tasks:
   - name: install-software
     command: |
       cd infrastructure
-      sh install-mandatory-software.sh
+      sh utils/install-mandatory-software.sh
+      npm i
 vscode:
   extensions:
     - 42Crunch.vscode-openapi

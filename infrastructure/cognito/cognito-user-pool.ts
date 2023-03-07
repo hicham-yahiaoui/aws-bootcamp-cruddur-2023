@@ -62,5 +62,13 @@ export class MyCognitoUserPool extends Construct {
       new TerraformOutput(scope,'cognito-user-client-name',{
         value : cognitoUserPoolClient.name
       })
+
+      new TerraformOutput(scope,'cognito-user-client-id',{
+        value : cognitoUserPoolClient.id
+      })
+
+      new TerraformOutput(scope,'cognito-user-pool-id',{
+        value : cognitoUserPool.id
+      })
     }
   }
