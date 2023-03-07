@@ -2,6 +2,7 @@ import { Construct } from "constructs";
 import { App, TerraformStack } from "cdktf";
 import { AwsProvider } from "@cdktf/provider-aws/lib/provider";
 import { MyCognitoUserPool } from "./cognito/cognito-user-pool";
+import { MySecrets } from "./secrets/secrets";
 
 
 class MyStack extends TerraformStack {
@@ -14,6 +15,8 @@ class MyStack extends TerraformStack {
     });
     
     new MyCognitoUserPool(this,'user-pool')
+
+    new MySecrets(this, 'my-secrets');
   }
 }
 
