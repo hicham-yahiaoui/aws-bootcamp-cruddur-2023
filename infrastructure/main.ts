@@ -14,9 +14,10 @@ class MyStack extends TerraformStack {
       region: "us-east-1",
     });
     
-    new MyCognitoUserPool(this,'user-pool')
+    const mySecrets = new MySecrets(this, 'my-secrets');
+    new MyCognitoUserPool(this,'user-pool',mySecrets)
 
-    new MySecrets(this, 'my-secrets');
+    
   }
 }
 

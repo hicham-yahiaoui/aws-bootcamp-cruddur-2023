@@ -2,12 +2,13 @@ import { CognitoUserPoolClient } from "@cdktf/provider-aws/lib/cognito-user-pool
 import { CognitoUserPool} from '@cdktf/provider-aws/lib/cognito-user-pool';
 import { Construct } from "constructs";
 import { TerraformOutput } from "cdktf";
+import { MySecrets } from "../secrets/secrets";
+import { CognitoUser } from "@cdktf/provider-aws/lib/cognito-user";
 
 
 export class MyCognitoUserPool extends Construct {
-    constructor(scope: Construct, name: string) {
+    constructor(scope: Construct, name: string, secrets: MySecrets) {
       super(scope, name);
-  
       const cognitoUserPool = new CognitoUserPool(this, 'cognito-' + name, {
         name: 'my-user-pool',
         usernameAttributes: ['email'],
@@ -56,7 +57,15 @@ export class MyCognitoUserPool extends Construct {
   
       const cognitoUserPoolClient = new CognitoUserPoolClient(this, 'cognito-'+name+'-client', {
         name: 'Cruddur',
-        userPoolId : cognitoUserPool.id
+        userPoolId : cognitoUserPool.id,
+        dependsOn: [cognitoUserPool]
+      });
+
+      const cognitoUser = new CognitoUser(this, 'cognito-user', {
+        userPoolId : cognitoUserPool.id,
+        username : 'bootcamp-user@test.com',
+        password : secrets.cognitoUserPassword.secretString,
+        dependsOn: [cognitoUserPool]
       });
 
       new TerraformOutput(scope,'cognito-user-client-name',{
@@ -69,6 +78,10 @@ export class MyCognitoUserPool extends Construct {
 
       new TerraformOutput(scope,'cognito-user-pool-id',{
         value : cognitoUserPool.id
+      })
+
+      new TerraformOutput(scope,'cognito-user-name',{
+        value : cognitoUser.username
       })
     }
   }
