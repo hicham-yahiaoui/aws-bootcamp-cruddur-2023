@@ -12,6 +12,7 @@ export class MyCognitoUserPool extends Construct {
       const cognitoUserPool = new CognitoUserPool(this, 'cognito-' + name, {
         name: 'my-user-pool',
         usernameAttributes: ['email'],
+        autoVerifiedAttributes : ['email'],
         emailConfiguration : {
           emailSendingAccount : "COGNITO_DEFAULT"
         },
@@ -63,8 +64,12 @@ export class MyCognitoUserPool extends Construct {
 
       const cognitoUser = new CognitoUser(this, 'cognito-user', {
         userPoolId : cognitoUserPool.id,
-        username : 'bootcamp-user@test.com',
+        username : 'hicham.yahiaoui@bootcamp.com',
         password : secrets.cognitoUserPassword.secretString,
+        attributes : {
+          "preferred_username" : "hyahiaoui",
+          "name" : "Hicham Yahiaoui"
+        },
         dependsOn: [cognitoUserPool]
       });
 

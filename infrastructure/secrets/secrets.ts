@@ -16,9 +16,16 @@ export class MySecrets extends Construct{
             symbols: true
         });
 
+        const suffix = generator.generate({
+            length: 4,
+            numbers: true,
+            symbols: false,
+            uppercase: false
+        });
+
         const secretsmanagerSecretConfig: SecretsmanagerSecretConfig = {
             description: "Password for cognito user",
-            name: "my-cognito-user-password"
+            name: "my-cognito-user-password-"+suffix
         }
         const cognitoUserSecret = new SecretsmanagerSecret(this, 'cognito-user-secret', secretsmanagerSecretConfig);
         this.cognitoUserPassword = new SecretsmanagerSecretVersion(this, 'cognito-user-secret-version', {

@@ -4,7 +4,6 @@ import { ReactComponent as Logo } from '../components/svg/logo.svg';
 import { Link } from "react-router-dom";
 
 import { Auth } from 'aws-amplify';
-import Cookies from 'js-cookie'
 
 export default function SigninPage() {
 

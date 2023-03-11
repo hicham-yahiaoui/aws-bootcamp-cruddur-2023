@@ -1,10 +1,8 @@
 import './ConfirmationPage.css';
 import React from "react";
-import { useParams } from 'react-router-dom';
+import { useLocation, useEffect  } from 'react-router-dom';
 import {ReactComponent as Logo} from '../components/svg/logo.svg';
-
-// [TODO] Authenication
-import Cookies from 'js-cookie'
+import { Auth } from 'aws-amplify';
 
 export default function ConfirmationPage() {
   const [email, setEmail] = React.useState('');
@@ -12,7 +10,9 @@ export default function ConfirmationPage() {
   const [errors, setErrors] = React.useState('');
   const [codeSent, setCodeSent] = React.useState(false);
 
-  const params = useParams();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  
 
   const code_onchange = (event) => {
     setCode(event.target.value);
@@ -22,27 +22,32 @@ export default function ConfirmationPage() {
   }
 
   const resend_code = async (event) => {
-    console.log('resend_code')
-    // [TODO] Authenication
-  }
-
-  const onsubmit = async (event) => {
-    event.preventDefault();
-    console.log('ConfirmationPage.onsubmit')
-    // [TODO] Authenication
-    if (Cookies.get('user.email') === undefined || Cookies.get('user.email') === '' || Cookies.get('user.email') === null){
-      setErrors("You need to provide an email in order to send Resend Activiation Code")   
-    } else {
-      if (Cookies.get('user.email') === email){
-        if (Cookies.get('user.confirmation_code') === code){
-          Cookies.set('user.logged_in',true)
-          window.location.href = "/"
-        } else {
-          setErrors("Code is not valid")
-        }
-      } else {
+    setErrors('')
+    try {
+      await Auth.resendSignUp(email);
+      console.log('code resent successfully');
+      setCodeSent(true)
+    } catch (err) {
+      // does not return a code
+      // does cognito always return english
+      // for this to be an okay match?
+      console.log(err)
+      if (err.message === 'Username cannot be empty'){
+        setErrors("You need to provide an email in order to send Resend Activiation Code")   
+      } else if (err.message === "Username/client id combination not found."){
         setErrors("Email is invalid or cannot be found.")   
       }
+    }
+  }
+  
+  const onsubmit = async (event) => {
+    event.preventDefault();
+    setErrors('')
+    try {
+      await Auth.confirmSignUp(email, code);
+      window.location.href = "/"
+    } catch (error) {
+      setErrors(error.message)
     }
     return false
   }
@@ -61,8 +66,8 @@ export default function ConfirmationPage() {
   }
 
   React.useEffect(()=>{
-    if (params.email) {
-      setEmail(params.email)
+    if (queryParams.get('email')) {
+      setEmail(queryParams.get('email'));
     }
   }, [])
 
