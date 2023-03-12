@@ -32,5 +32,21 @@ export class MySecrets extends Construct{
             secretId : cognitoUserSecret.id,
             secretString
         });
+
+        // Database secret password
+        const secretPassword = generator.generate({
+            length: 16,
+            numbers: true
+        });
+
+        const passwordSecretsmanagerSecretConfig: SecretsmanagerSecretConfig = {
+            description: "Master password rds database",
+            name: "my-rds-bootcamp-master-password"+suffix
+        }
+        const rdsUserSecret = new SecretsmanagerSecret(this, 'rds-master-secret', passwordSecretsmanagerSecretConfig);
+        new SecretsmanagerSecretVersion(this, 'rds-master-secret-version', {
+            secretId : rdsUserSecret.id,
+            secretString : secretPassword
+        });
     }        
 }
