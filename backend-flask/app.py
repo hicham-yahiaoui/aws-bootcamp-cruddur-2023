@@ -207,10 +207,11 @@ def data_search():
 @app.route("/api/activities", methods=['POST','OPTIONS'])
 @cross_origin()
 def data_activities():
+  create_activities = CreateActivity()
   user_handle  = 'andrewbrown'
   message = request.json['message']
   ttl = request.json['ttl']
-  model = CreateActivity.run(message, user_handle, ttl)
+  model = create_activities.run(message, user_handle, ttl)
   if model['errors'] is not None:
     return model['errors'], 422
   else:
