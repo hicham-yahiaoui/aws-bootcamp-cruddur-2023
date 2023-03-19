@@ -14,7 +14,7 @@ def lambda_handler(event, context):
     user_handle        = user['preferred_username']
     user_cognito_id    = user['sub']
 
-    sql = f"""
+    sql = """
          INSERT INTO public.users (
           display_name,
           email,
