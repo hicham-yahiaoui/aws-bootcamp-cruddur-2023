@@ -6,6 +6,7 @@ import { Construct } from "constructs";
 export class MySecrets extends Construct{
 
     public readonly cognitoUserPassword: SecretsmanagerSecretVersion;
+    public readonly rdsMasterPassword: SecretsmanagerSecretVersion;
 
     constructor(scope: Construct, name: string) {
         super(scope,name);
@@ -44,7 +45,7 @@ export class MySecrets extends Construct{
             name: "my-rds-bootcamp-master-password"+suffix
         }
         const rdsUserSecret = new SecretsmanagerSecret(this, 'rds-master-secret', passwordSecretsmanagerSecretConfig);
-        new SecretsmanagerSecretVersion(this, 'rds-master-secret-version', {
+        this.rdsMasterPassword = new SecretsmanagerSecretVersion(this, 'rds-master-secret-version', {
             secretId : rdsUserSecret.id,
             secretString : secretPassword
         });

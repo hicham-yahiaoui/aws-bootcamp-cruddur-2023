@@ -4,10 +4,11 @@ import { Construct } from "constructs";
 import { TerraformOutput } from "cdktf";
 import { MySecrets } from "../secrets/secrets";
 import { CognitoUser } from "@cdktf/provider-aws/lib/cognito-user";
-
+import { MyCognitoPostConfirmationLambda } from "../lambda/cognito-post-confirmation-lambda";
+import { LambdaPermission } from "@cdktf/provider-aws/lib/lambda-permission";
 
 export class MyCognitoUserPool extends Construct {
-    constructor(scope: Construct, name: string, secrets: MySecrets, myCognitoPostConfirmationLambdaArn: string) {
+    constructor(scope: Construct, name: string, secrets: MySecrets, myCognitoPostConfirmationLambda: MyCognitoPostConfirmationLambda) {
       super(scope, name);
       const cognitoUserPool = new CognitoUserPool(this, 'cognito-' + name, {
         name: 'my-user-pool',
@@ -17,7 +18,7 @@ export class MyCognitoUserPool extends Construct {
           emailSendingAccount : "COGNITO_DEFAULT"
         },
         lambdaConfig: {
-          postConfirmation: myCognitoPostConfirmationLambdaArn
+          postConfirmation: myCognitoPostConfirmationLambda.lambdaARN
         },
         accountRecoverySetting: {
           recoveryMechanism: [
@@ -74,6 +75,13 @@ export class MyCognitoUserPool extends Construct {
           "name" : "Hicham Yahiaoui"
         },
         dependsOn: [cognitoUserPool]
+      });
+
+      new LambdaPermission(this, "cognito-lambda", {
+        functionName: myCognitoPostConfirmationLambda.lambdaFunctionName,
+        action: "lambda:InvokeFunction",
+        principal: "cognito-idp.amazonaws.com",
+        sourceArn: cognitoUserPool.arn,
       });
 
       new TerraformOutput(scope,'cognito-user-client-name',{
