@@ -3,6 +3,7 @@ import { App, TerraformStack } from "cdktf";
 import { AwsProvider } from "@cdktf/provider-aws/lib/provider";
 import { MyCognitoUserPool } from "./cognito/cognito-user-pool";
 import { MySecrets } from "./secrets/secrets";
+import { MyCognitoPostConfirmationLambda } from "./lambda/cognito-post-confirmation-lambda";
 
 
 class MyStack extends TerraformStack {
@@ -15,6 +16,7 @@ class MyStack extends TerraformStack {
     });
     
     const mySecrets = new MySecrets(this, 'my-secrets');
+    new MyCognitoPostConfirmationLambda(this,'cognito-post-confirmation-lambda');
     new MyCognitoUserPool(this,'user-pool',mySecrets)
 
     
