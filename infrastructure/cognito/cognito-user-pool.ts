@@ -7,7 +7,7 @@ import { CognitoUser } from "@cdktf/provider-aws/lib/cognito-user";
 
 
 export class MyCognitoUserPool extends Construct {
-    constructor(scope: Construct, name: string, secrets: MySecrets) {
+    constructor(scope: Construct, name: string, secrets: MySecrets, myCognitoPostConfirmationLambdaArn: string) {
       super(scope, name);
       const cognitoUserPool = new CognitoUserPool(this, 'cognito-' + name, {
         name: 'my-user-pool',
@@ -15,6 +15,9 @@ export class MyCognitoUserPool extends Construct {
         autoVerifiedAttributes : ['email'],
         emailConfiguration : {
           emailSendingAccount : "COGNITO_DEFAULT"
+        },
+        lambdaConfig: {
+          postConfirmation: myCognitoPostConfirmationLambdaArn
         },
         accountRecoverySetting: {
           recoveryMechanism: [

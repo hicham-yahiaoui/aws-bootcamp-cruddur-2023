@@ -4,7 +4,7 @@ import * as path from 'path';
 import { LambdaFunction } from "@cdktf/provider-aws/lib/lambda-function";
 import * as random from "@cdktf/provider-random";
 import { S3Bucket } from "@cdktf/provider-aws/lib/s3-bucket";
-import { AssetType, TerraformAsset } from "cdktf";
+import { AssetType, TerraformAsset} from "cdktf";
 import { IamRole } from "@cdktf/provider-aws/lib/iam-role";
 import { IamRolePolicyAttachment } from "@cdktf/provider-aws/lib/iam-role-policy-attachment";
 import { S3Object } from "@cdktf/provider-aws/lib/s3-object";
@@ -24,6 +24,7 @@ const lambdaRolePolicy = {
 };
 
 export class MyCognitoPostConfirmationLambda extends Construct {
+    public readonly lambdaARN: string;
     constructor(scope: Construct, name: string) {
         super(scope, name);
 
@@ -75,7 +76,7 @@ export class MyCognitoPostConfirmationLambda extends Construct {
 
 
         // Create the AWS Lambda function
-        new LambdaFunction(this, 'MyLambdaFunction', {
+        const lambda = new LambdaFunction(this, 'MyLambdaFunction', {
             functionName: "cognito-post-confirmation",
             role: role.arn,
             runtime: "python3.8",
@@ -84,9 +85,10 @@ export class MyCognitoPostConfirmationLambda extends Construct {
             handler: 'handler.lambda_handler',
         });
 
-        // Delete the ZIP file on successful deployment
-        // Execute shell command to create the ZIP file
+        // Execute shell command to clean lambda dependencies
         const command_clean = `cd ${lambdaCognitoPath} && find . -not -name cognito-post-confirmation.py ! -name requirements.txt -delete`;
         child_process.execSync(command_clean);
+
+        this.lambdaARN = lambda.arn;
     }
 }

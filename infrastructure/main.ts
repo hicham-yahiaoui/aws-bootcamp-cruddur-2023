@@ -16,8 +16,8 @@ class MyStack extends TerraformStack {
     });
     
     const mySecrets = new MySecrets(this, 'my-secrets');
-    new MyCognitoPostConfirmationLambda(this,'cognito-post-confirmation-lambda');
-    new MyCognitoUserPool(this,'user-pool',mySecrets)
+    const myCognitoPostConfirmationLambda = new MyCognitoPostConfirmationLambda(this,'cognito-post-confirmation-lambda');
+    new MyCognitoUserPool(this,'user-pool',mySecrets,myCognitoPostConfirmationLambda.lambdaARN)
 
     
   }
