@@ -1,5 +1,6 @@
 import { Construct } from "constructs";
 import * as path from 'path';
+import * as child_process from 'child_process';
 import { LambdaFunction } from "@cdktf/provider-aws/lib/lambda-function";
 import * as random from "@cdktf/provider-random";
 import { S3Bucket } from "@cdktf/provider-aws/lib/s3-bucket";
@@ -34,10 +35,8 @@ export class MyCognitoPostConfirmationLambda extends Construct {
         const lambdaCognitoPath = path.join(__dirname, 'cognito-lambda');
 
         // Execute shell command to create the ZIP file
-        const installLambdaDependencies = new LocalExec(this, "local-install-python-requirements", {
-            cwd: lambdaCognitoPath,
-            command: "pip install -r requirements.txt -t ./ --no-user"
-        });
+        const command = `cd ${lambdaCognitoPath} && pip install -r requirements.txt -t ./ --no-user`;
+        child_process.execSync(command);
 
         // Create S3 bucket that will contain the lambda code
         new random.provider.RandomProvider(this, "random");
@@ -90,7 +89,6 @@ export class MyCognitoPostConfirmationLambda extends Construct {
             s3Bucket: bucketLambdaCode.bucket,
             s3Key: lambdaArchive.key,
             handler: 'cognito-post-confirmation.lambda_handler',
-            dependsOn: [installLambdaDependencies]
         });
 
         // Execute shell command to clean lambda dependencies

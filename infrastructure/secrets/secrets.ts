@@ -2,6 +2,7 @@ import { SecretsmanagerSecret, SecretsmanagerSecretConfig  } from "@cdktf/provid
 import { SecretsmanagerSecretVersion } from "@cdktf/provider-aws/lib/secretsmanager-secret-version";
 import generator from 'generate-password-ts';
 import { Construct } from "constructs";
+import { TerraformOutput } from "cdktf";
 
 export class MySecrets extends Construct{
 
@@ -49,5 +50,7 @@ export class MySecrets extends Construct{
             secretId : rdsUserSecret.id,
             secretString : secretPassword
         });
+
+        new TerraformOutput(this,"rds-master-password-name",this.rdsMasterPassword.friendlyUniqueId);
     }        
 }

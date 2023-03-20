@@ -208,7 +208,7 @@ def data_search():
 @cross_origin()
 def data_activities():
   create_activities = CreateActivity()
-  user_handle  = 'andrewbrown'
+  user_handle  = 'hyahiaoui'
   message = request.json['message']
   ttl = request.json['ttl']
   model = create_activities.run(message, user_handle, ttl)
