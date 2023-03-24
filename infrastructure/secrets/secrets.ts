@@ -51,6 +51,8 @@ export class MySecrets extends Construct{
             secretString : secretPassword
         });
 
-        new TerraformOutput(this,"rds-master-password-name",this.rdsMasterPassword.friendlyUniqueId);
+        new TerraformOutput(this,"rds-master-password-name",{
+            value: this.rdsMasterPassword.friendlyUniqueId
+        });
     }        
 }

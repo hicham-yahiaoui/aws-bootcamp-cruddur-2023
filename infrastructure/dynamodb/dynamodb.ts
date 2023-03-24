@@ -20,16 +20,18 @@ export class MyDynamoDB extends Construct {
         super(scope, name);
         new DynamodbTable(this, 'dynamo-db', {
             name: 'cruddur-messages',
-            billingMode: 'PAY_PER_REQUEST',
-            hashKey: '', // partition key
-            rangeKey: '',// sort key
+            billingMode: 'PROVISIONED',
+            readCapacity: 5,
+            writeCapacity: 5,
+            hashKey: 'pk', // partition key
+            rangeKey: 'sk',// sort key
             attribute: [
                 {
-                    name: '',
+                    name: 'pk',
                     type: 'S'
                 },
                 {
-                    name: '',
+                    name: 'sk',
                     type: 'S'
                 }]
         });
