@@ -11,6 +11,7 @@ services:
       AWS_XRAY_DAEMON_ADDRESS: "xray-daemon:2000"
       # TODO Enable variables for cloudwatch logs
       AWS_DEFAULT_REGION: "${AWS_DEFAULT_REGION}"
+      AWS_ENDPOINT_URL: "http://ddb:8000"
       #AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID}"
       #AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY}"
       ROLLBAR_ACCESS_TOKEN: "${ROLLBAR_ACCESS_TOKEN}"
@@ -27,21 +28,21 @@ services:
       REACT_APP_BACKEND_URL: "https://4567-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}"
       REACT_APP_AWS_PROJECT_REGION: "${AWS_DEFAULT_REGION}"
       REACT_APP_AWS_COGNITO_REGION: "${AWS_DEFAULT_REGION}"
-      REACT_APP_AWS_USER_POOLS_ID: "us-east-1_FVMh0ockc"
-      REACT_APP_CLIENT_ID: "4nrcq2udb7mam4iuo9g9k50mep"
+      REACT_APP_AWS_USER_POOLS_ID: "us-east-1_nCpzVbZee"
+      REACT_APP_CLIENT_ID: "e43a3c5bvhh4cod3rrj3hk9kg"
     build: ./frontend-react-js
     ports:
       - "3000:3000"
     volumes:
       - ./frontend-react-js:/frontend-react-js
   
-  dynamodb-local:
+  ddb:
     # https://stackoverflow.com/questions/67533058/persist-local-dynamodb-data-in-volumes-lack-permission-unable-to-open-databa
     # We needed to add user:root to get this working.
     user: root
     command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ./data"
     image: "amazon/dynamodb-local:latest"
-    container_name: dynamodb-local
+    container_name: ddb
     ports:
       - "8000:8000"
     volumes:
