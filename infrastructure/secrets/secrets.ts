@@ -52,7 +52,7 @@ export class MySecrets extends Construct{
         });
 
         new TerraformOutput(this,"rds-master-password-name",{
-            value: this.rdsMasterPassword.friendlyUniqueId
+            value: this.rdsMasterPassword.secretId
         });
     }        
 }

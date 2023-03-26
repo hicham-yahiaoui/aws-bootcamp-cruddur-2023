@@ -4,6 +4,7 @@ import { AwsProvider } from "@cdktf/provider-aws/lib/provider";
 import { MyCognitoUserPool } from "./cognito/cognito-user-pool";
 import { MySecrets } from "./secrets/secrets";
 import { MyCognitoPostConfirmationLambda } from "./lambda/cognito-post-confirmation-lambda";
+import { MyRdsInstance } from "./rds/rds-instance";
 
 
 class MyStack extends TerraformStack {
@@ -16,7 +17,8 @@ class MyStack extends TerraformStack {
     });
     
     const mySecrets = new MySecrets(this, 'my-secrets');
-    const myCognitoPostConfirmationLambda = new MyCognitoPostConfirmationLambda(this,'cognito-post-confirmation-lambda');
+    const myRdsInstance = new MyRdsInstance(this, 'my-rds-instance', mySecrets);
+    const myCognitoPostConfirmationLambda = new MyCognitoPostConfirmationLambda(this,'cognito-post-confirmation-lambda',myRdsInstance.myDbInstance,myRdsInstance.securityGroupId);
     new MyCognitoUserPool(this,'user-pool',mySecrets,myCognitoPostConfirmationLambda);    
   }
 }

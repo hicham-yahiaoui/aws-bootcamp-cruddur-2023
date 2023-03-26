@@ -9,6 +9,9 @@ import { IamRole } from "@cdktf/provider-aws/lib/iam-role";
 import { IamRolePolicyAttachment } from "@cdktf/provider-aws/lib/iam-role-policy-attachment";
 import { S3Object } from "@cdktf/provider-aws/lib/s3-object";
 import { Provider, LocalExec } from "cdktf-local-exec";
+import { DbInstance } from "@cdktf/provider-aws/lib/db-instance";
+import { DataAwsVpc } from "@cdktf/provider-aws/lib/data-aws-vpc";
+import { Subnet } from "@cdktf/provider-aws/lib/subnet";
 
 const lambdaRolePolicy = {
     "Version": "2012-10-17",
@@ -27,7 +30,7 @@ const lambdaRolePolicy = {
 export class MyCognitoPostConfirmationLambda extends Construct {
     public readonly lambdaARN: string;
     public readonly lambdaFunctionName: string;
-    constructor(scope: Construct, name: string) {
+    constructor(scope: Construct, name: string, myDbInstance: DbInstance, securityGroupId:string) {
         super(scope, name);
 
         new Provider(this, "local-exec");
@@ -80,7 +83,18 @@ export class MyCognitoPostConfirmationLambda extends Construct {
             key: `${lambdaAsset.fileName}`,
             source: lambdaAsset.path, // returns a posix path
         });
+        // Get the default VPC
+        const defaultVpc = new DataAwsVpc(this, 'default-vpc', {
+            default: true,
+        });
 
+        const subnet1 = new Subnet(this,'my-subnet1',{
+            vpcId : defaultVpc.id,
+        });
+
+        const subnet2 = new Subnet(this,'my-subnet2',{
+            vpcId : defaultVpc.id,
+        });
         // Create the AWS Lambda function
         const lambda = new LambdaFunction(this, 'MyLambdaFunction', {
             functionName: "cognito-post-confirmation",
@@ -89,7 +103,18 @@ export class MyCognitoPostConfirmationLambda extends Construct {
             s3Bucket: bucketLambdaCode.bucket,
             s3Key: lambdaArchive.key,
             handler: 'cognito-post-confirmation.lambda_handler',
+            environment: {
+                variables: {
+                    'CONNECTION_URL': `postgres://${myDbInstance.username}:${myDbInstance.password}@${myDbInstance.domain}/${myDbInstance.dbName}`
+                }
+            },
+            vpcConfig: {
+                subnetIds: [subnet1.id, subnet2.id],
+                securityGroupIds: [securityGroupId],
+            },
         });
+
+
 
         // Execute shell command to clean lambda dependencies
         new LocalExec(this, "local-clean-python-requirements", {
