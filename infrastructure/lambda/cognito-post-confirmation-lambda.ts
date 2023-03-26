@@ -11,7 +11,7 @@ import { S3Object } from "@cdktf/provider-aws/lib/s3-object";
 import { Provider, LocalExec } from "cdktf-local-exec";
 import { DbInstance } from "@cdktf/provider-aws/lib/db-instance";
 import { DataAwsVpc } from "@cdktf/provider-aws/lib/data-aws-vpc";
-import { Subnet } from "@cdktf/provider-aws/lib/subnet";
+import { DataAwsSubnetIds } from "@cdktf/provider-aws/lib/data-aws-subnet-ids";
 
 const lambdaRolePolicy = {
     "Version": "2012-10-17",
@@ -87,13 +87,9 @@ export class MyCognitoPostConfirmationLambda extends Construct {
         const defaultVpc = new DataAwsVpc(this, 'default-vpc', {
             default: true,
         });
-
-        const subnet1 = new Subnet(this,'my-subnet1',{
-            vpcId : defaultVpc.id,
-        });
-
-        const subnet2 = new Subnet(this,'my-subnet2',{
-            vpcId : defaultVpc.id,
+        
+        const awsSubnetIds = new DataAwsSubnetIds(this,'subnet-ids',{
+            vpcId: defaultVpc.id
         });
         // Create the AWS Lambda function
         const lambda = new LambdaFunction(this, 'MyLambdaFunction', {
@@ -105,13 +101,14 @@ export class MyCognitoPostConfirmationLambda extends Construct {
             handler: 'cognito-post-confirmation.lambda_handler',
             environment: {
                 variables: {
-                    'CONNECTION_URL': `postgres://${myDbInstance.username}:${myDbInstance.password}@${myDbInstance.domain}/${myDbInstance.dbName}`
+                    'CONNECTION_URL': `postgres://${myDbInstance.username}:${myDbInstance.password}@${myDbInstance.endpoint}/${myDbInstance.dbName}`
                 }
             },
             vpcConfig: {
-                subnetIds: [subnet1.id, subnet2.id],
+                subnetIds: awsSubnetIds.ids.slice(0, 2),
                 securityGroupIds: [securityGroupId],
             },
+            dependsOn: [myDbInstance],
         });
 
 
