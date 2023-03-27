@@ -5,6 +5,7 @@ import uuid
 import os
 
 class Ddb:
+  @staticmethod
   def client():
     endpoint_url = os.getenv("AWS_ENDPOINT_URL")
     print('############# endpoint_url:',endpoint_url)
@@ -13,7 +14,9 @@ class Ddb:
     else:
       attrs = {}
     dynamodb = boto3.client('dynamodb',**attrs)
-    return dynamodb  
+    return dynamodb
+  
+  @staticmethod
   def list_message_groups(client,my_user_uuid):
     current_year = datetime.now().year
     table_name = 'cruddur-messages'
