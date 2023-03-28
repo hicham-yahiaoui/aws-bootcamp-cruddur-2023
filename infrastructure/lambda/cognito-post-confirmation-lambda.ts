@@ -8,7 +8,7 @@ import { AssetType, TerraformAsset } from "cdktf";
 import { IamRole } from "@cdktf/provider-aws/lib/iam-role";
 import { IamRolePolicyAttachment } from "@cdktf/provider-aws/lib/iam-role-policy-attachment";
 import { S3Object } from "@cdktf/provider-aws/lib/s3-object";
-import { Provider, LocalExec } from "cdktf-local-exec";
+import { LocalExec } from "cdktf-local-exec";
 import { DbInstance } from "@cdktf/provider-aws/lib/db-instance";
 import { DataAwsVpc } from "@cdktf/provider-aws/lib/data-aws-vpc";
 import { DataAwsSubnetIds } from "@cdktf/provider-aws/lib/data-aws-subnet-ids";
@@ -33,8 +33,6 @@ export class MyCognitoPostConfirmationLambda extends Construct {
     constructor(scope: Construct, name: string, myDbInstance: DbInstance, securityGroupId:string) {
         super(scope, name);
 
-        new Provider(this, "local-exec");
-
         const lambdaCognitoPath = path.join(__dirname, 'cognito-lambda');
 
         // Execute shell command to create the ZIP file
@@ -42,8 +40,6 @@ export class MyCognitoPostConfirmationLambda extends Construct {
         child_process.execSync(command);
 
         // Create S3 bucket that will contain the lambda code
-        new random.provider.RandomProvider(this, "random");
-
         // Create random value
         const bucketSuffix = new random.pet.Pet(this, "random-bucket-suffix", {
             length: 2,

@@ -9,13 +9,19 @@ dynamodb = boto3.resource(
 )
 
 def lambda_handler(event, context):
+  print('event-data',event)
+
+  event_name = event['Records'][0]['eventName']
+  if (event_name == 'REMOVE'):
+    print("skip REMOVE event")
+    return
   pk = event['Records'][0]['dynamodb']['Keys']['pk']['S']
   sk = event['Records'][0]['dynamodb']['Keys']['sk']['S']
   if pk.startswith('MSG#'):
     group_uuid = pk.replace("MSG#","")
     message = event['Records'][0]['dynamodb']['NewImage']['message']['S']
     print("GRUP ===>",group_uuid,message)
-    
+
     table_name = 'cruddur-messages'
     index_name = 'message-group-sk-index'
     table = dynamodb.Table(table_name)
@@ -24,12 +30,12 @@ def lambda_handler(event, context):
       KeyConditionExpression=Key('message_group_uuid').eq(group_uuid)
     )
     print("RESP ===>",data['Items'])
-    
+
     # recreate the message group rows with new SK value
     for i in data['Items']:
       delete_item = table.delete_item(Key={'pk': i['pk'], 'sk': i['sk']})
       print("DELETE ===>",delete_item)
-      
+
       response = table.put_item(
         Item={
           'pk': i['pk'],

@@ -1,20 +1,6 @@
 import { DynamodbTable } from "@cdktf/provider-aws/lib/dynamodb-table";
 import { Construct } from "constructs";
 
-const lambdaRolePolicy = {
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Action": "sts:AssumeRole",
-            "Principal": {
-                "Service": "lambda.amazonaws.com"
-            },
-            "Effect": "Allow",
-            "Sid": ""
-        }
-    ]
-};
-
 export class MyDynamoDB extends Construct {
     constructor(scope: Construct, name: string) {
         super(scope, name);
@@ -33,7 +19,21 @@ export class MyDynamoDB extends Construct {
                 {
                     name: 'sk',
                     type: 'S'
-                }]
+                }, {
+                    name: 'message_group_uuid',
+                    type: 'S'
+                },],
+            globalSecondaryIndex: [
+                {
+                    name: 'message-group-sk-index',
+                    hashKey: 'message_group_uuid',
+                    rangeKey: 'sk',
+                    readCapacity: 5,
+                    writeCapacity: 5,
+                    projectionType: 'ALL',
+                }
+            ],
+            streamEnabled: true
         });
     }
 }
