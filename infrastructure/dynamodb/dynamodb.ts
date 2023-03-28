@@ -2,9 +2,11 @@ import { DynamodbTable } from "@cdktf/provider-aws/lib/dynamodb-table";
 import { Construct } from "constructs";
 
 export class MyDynamoDB extends Construct {
+
+    public readonly streamArn: string;
     constructor(scope: Construct, name: string) {
         super(scope, name);
-        new DynamodbTable(this, 'dynamo-db', {
+        const dynamoDbTable = new DynamodbTable(this, 'dynamo-db', {
             name: 'cruddur-messages',
             billingMode: 'PROVISIONED',
             readCapacity: 5,
@@ -33,7 +35,10 @@ export class MyDynamoDB extends Construct {
                     projectionType: 'ALL',
                 }
             ],
-            streamEnabled: true
+            streamEnabled: true,
+            streamViewType: 'NEW_IMAGE'
         });
+
+        this.streamArn = dynamoDbTable.streamArn;
     }
 }

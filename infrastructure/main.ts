@@ -28,8 +28,8 @@ class MyStack extends TerraformStack {
     const myRdsInstance = new MyRdsInstance(this, 'my-rds-instance', mySecrets);
     const myCognitoPostConfirmationLambda = new MyCognitoPostConfirmationLambda(this,'cognito-post-confirmation-lambda',myRdsInstance.myDbInstance,myRdsInstance.securityGroupId);
     new MyCognitoUserPool(this,'user-pool',mySecrets,myCognitoPostConfirmationLambda);
-    new MyDynamoDbLambdas(this,'my-dynamodb-lambda');
-    new MyDynamoDB(this,'my-dynamodb');
+    const myDynamoDb = new MyDynamoDB(this,'my-dynamodb');
+    new MyDynamoDbLambdas(this,'my-dynamodb-lambda',myDynamoDb.streamArn);
   }
 }
 

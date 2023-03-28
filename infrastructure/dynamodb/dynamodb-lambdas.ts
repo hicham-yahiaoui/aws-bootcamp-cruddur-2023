@@ -9,6 +9,7 @@ import { S3Object } from "@cdktf/provider-aws/lib/s3-object";
 import { LambdaFunction } from "@cdktf/provider-aws/lib/lambda-function";
 import { IamRole } from "@cdktf/provider-aws/lib/iam-role";
 import { LocalExec } from "cdktf-local-exec";
+import { LambdaEventSourceMapping } from "@cdktf/provider-aws/lib/lambda-event-source-mapping";
 
 const lambdaRolePolicy = {
     "Version": "2012-10-17",
@@ -24,8 +25,8 @@ const lambdaRolePolicy = {
     ]
 };
 
-export class MyDynamoDbLambdas extends Construct{
-    constructor(scope: Construct, name: string) {
+export class MyDynamoDbLambdas extends Construct {
+    constructor(scope: Construct, name: string, streamArn:string) {
         super(scope, name);
         const lambdaDynamodbPath = path.join(__dirname, 'dynamodb-lambdas');
 
@@ -81,6 +82,14 @@ export class MyDynamoDbLambdas extends Construct{
             s3Bucket: bucketLambdaCode.bucket,
             s3Key: lambdaArchive.key,
             handler: 'cruddur-messaging-stream.lambda_handler',
+        });
+
+        // Lambda source mapping
+        new LambdaEventSourceMapping(this, 'dynamodb-source-mapping', {
+            eventSourceArn: streamArn,
+            functionName: lambda.functionName,
+            batchSize: 1, // Replace with your desired batch size
+            startingPosition: 'LATEST', // Replace with your desired starting position
         });
 
         // Execute shell command to clean lambda dependencies
